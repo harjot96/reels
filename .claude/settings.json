@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/harjot/Documents/trae_projects/**)",
+      "Bash(npx create-next-app@14 . --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --yes --skip-git)",
+      "Bash(npx create-next-app@14 faceless-app --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --yes)",
+      "Bash(cp -r /Users/harjot/Documents/trae_projects/faceless-app/. /Users/harjot/Documents/trae_projects/faceless/)",
+      "Bash(rm -rf /Users/harjot/Documents/trae_projects/faceless-app)",
+      "Bash(npx shadcn-ui@latest init --yes)",
+      "Bash(npx shadcn@latest init --yes --defaults)"
+    ]
+  }
+}
