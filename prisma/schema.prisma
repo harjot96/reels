@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  series           Series[]
+  youtubeAccount   YoutubeAccount?
+  instagramAccount InstagramAccount?
+  facebookAccount  FacebookAccount?
+  snapchatAccount  SnapchatAccount?
+  liveStreams      LiveStream[]
+  workflows        Workflow[]
+}
+
+model LiveStream {
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId            String?
+  title              String
+  description        String    @default("")
+  platforms          String    // JSON: ["youtube","facebook"]
+  status             String    @default("STARTING") // STARTING|LIVE|ENDING|ENDED|FAILED
+  youtubeBroadcastId String?
+  youtubeStreamId    String?
+  youtubeStreamKey   String?
+  youtubeRtmpUrl     String?
+  youtubeWatchUrl    String?
+  facebookVideoId    String?
+  facebookStreamUrl  String?
+  facebookPermalink  String?
+  ffmpegPid          Int?
+  errorMessage       String?
+  startedAt          DateTime  @default(now())
+  endedAt            DateTime?
+}
+
+model Workflow {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  nodes       String   @default("[]")
+  edges       String   @default("[]")
+  isActive      Boolean   @default(true)
+  lastCronRunAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  executions WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id            String    @id @default(cuid())
+  workflowId    String
+  workflow      Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  status        String    @default("RUNNING")  // RUNNING | COMPLETED | FAILED
+  triggeredBy   String    @default("manual")   // manual | cron
+  currentNodeId String?
+  logs          String?
+  result        String?
+  startedAt     DateTime  @default(now())
+  finishedAt    DateTime?
+}
+
+model YoutubeAccount {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelId          String
+  channelName        String
+  defaultDescription String   @default("")
+  accessToken        String
+  refreshToken       String
+  tokenExpiry        DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model InstagramAccount {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageId          String
+  pageName        String
+  instagramUserId String
+  username        String
+  accessToken     String
+  tokenExpiry     DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model FacebookAccount {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pageId          String
+  pageName        String
+  pageUrl         String?
+  userAccessToken String
+  pageAccessToken String
+  tokenExpiry     DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SnapchatAccount {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snapUserId   String
+  displayName  String
+  username     String
+  adAccountId  String   @default("")
+  accessToken  String
+  refreshToken String
+  tokenExpiry  DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// status: ACTIVE | PAUSED | ARCHIVED
+model Series {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  niche           String
+  description     String?
+  language        String   @default("en")
+  videoFormat     String   @default("landscape")
+  style           String   @default("cinematic")
+  voiceId         String   @default("EXAVITQu4vr4xnSDxMaL")
+  ttsProvider     String   @default("auto")   // auto | edge | elevenlabs | openai | huggingface
+  imageStyle      String   @default("photorealistic")
+  videoDuration   Int      @default(60)
+  seriesType      String   @default("standard")   // "standard" | "weather"
+  weatherLocation String?                          // e.g. "Mumbai, IN" or "New York, US"
+  weatherUnits    String   @default("metric")      // "metric" (°C) | "imperial" (°F)
+  logoUrl         String?                          // channel logo watermark path
+  bgMusicUrl      String?                          // custom background music path
+  bgMusicVolume   Float    @default(0.12)          // 0.0–1.0
+  autoPublish     Boolean  @default(false)
+  publishSchedule String?
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  videos Video[]
+}
+
+// status: PENDING | GENERATING | READY | SCHEDULED | PUBLISHING | PUBLISHED | FAILED
+model Video {
+  id              String    @id @default(cuid())
+  seriesId        String
+  series          Series    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  title           String
+  script          String?
+  audioUrl        String?
+  videoUrl        String?
+  thumbnailUrl    String?
+  srtUrl          String?
+  chapters        String?
+  youtubeVideoId    String?
+  youtubeUrl        String?
+  youtubePublishAt  DateTime?
+  instagramMediaId String?
+  instagramUrl     String?
+  facebookPostId   String?
+  facebookUrl      String?
+  snapchatPostId   String?
+  snapchatUrl      String?
+  status          String    @default("PENDING")
+  scheduledFor    DateTime?
+  publishedAt     DateTime?
+  errorMessage    String?
+  durationSeconds Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  job         GenerationJob?
+  imageAssets ImageAsset[]
+  shorts      Short[]
+}
+
+model Short {
+  id             String   @id @default(cuid())
+  videoId        String
+  video          Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  url            String
+  index          Int
+  title          String
+  overlayTitle   String?
+  overlayCaption String?
+  youtubeVideoId   String?
+  youtubeUrl       String?
+  youtubePublishAt DateTime?
+  instagramMediaId String?
+  instagramUrl     String?
+  facebookPostId   String?
+  facebookUrl      String?
+  snapchatPostId   String?
+  snapchatUrl      String?
+  createdAt        DateTime @default(now())
+}
+
+// currentStep / failedStep: SCRIPT | AUDIO | IMAGES | ASSEMBLE | UPLOAD | COMPLETE | FAILED
+model GenerationJob {
+  id              String   @id @default(cuid())
+  videoId         String   @unique
+  video           Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  currentStep     String   @default("SCRIPT")
+  stepProgress    Int      @default(0)
+  overallProgress Int      @default(0)
+  stepMessage     String?
+  logs            String?
+  failedStep      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ImageAsset {
+  id        String   @id @default(cuid())
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  prompt    String
+  url       String
+  index     Int
+  createdAt DateTime @default(now())
+}

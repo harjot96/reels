@@ -1,0 +1,47 @@
+"use client";
+import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Upload, CheckCircle2 } from "lucide-react";
+import { NodeWrapper } from "./NodeWrapper";
+
+export function UploadVideoNode({ id, data, selected }: NodeProps) {
+  const config = (data as any).config;
+  const color = "#6366f1";
+  const isAudio = config.mediaKind === "audio";
+  const isProcessing = Boolean(config.processing);
+  const uploadMode = config.uploadMode === "direct" ? "direct" : "series";
+
+  return (
+    <NodeWrapper nodeId={id} status={(data as any)._status} outputData={(data as any)._outputData}>
+      <div
+        className={`rounded-xl border-2 bg-card shadow-lg min-w-[200px] transition-all`}
+        style={{ borderColor: selected ? color : `${color}66` }}
+      >
+        <div className="flex items-center gap-2 px-3 py-2 rounded-t-xl" style={{ background: `${color}22` }}>
+          <Upload className="w-4 h-4 shrink-0" style={{ color }} />
+          <span className="text-xs font-semibold" style={{ color }}>Upload Video / MP3</span>
+        </div>
+        <div className="px-3 py-2">
+          <p className="text-[9px] text-muted-foreground mb-1">
+            {uploadMode === "direct" ? "Mode: Direct Video" : "Mode: Series Upload"}
+          </p>
+          {config.videoId ? (
+            <div className="space-y-1">
+              <p className="text-[10px] text-green-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                {config.fileName || "File uploaded"}
+              </p>
+              {isAudio && (
+                <p className="text-[9px] text-muted-foreground">
+                  {isProcessing ? "MP3 converting to video..." : "MP3 converted to video"}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-[10px] text-muted-foreground">Click to configure & upload</p>
+          )}
+        </div>
+        <Handle type="source" position={Position.Bottom} className="!w-2 !h-2" style={{ background: color }} />
+      </div>
+    </NodeWrapper>
+  );
+}

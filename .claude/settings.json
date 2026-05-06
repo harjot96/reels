@@ -7,7 +7,35 @@
       "Bash(cp -r /Users/harjot/Documents/trae_projects/faceless-app/. /Users/harjot/Documents/trae_projects/faceless/)",
       "Bash(rm -rf /Users/harjot/Documents/trae_projects/faceless-app)",
       "Bash(npx shadcn-ui@latest init --yes)",
-      "Bash(npx shadcn@latest init --yes --defaults)"
+      "Bash(npx shadcn@latest init --yes --defaults)",
+      "Bash(npx shadcn@latest add card input label progress select badge textarea dialog toast --yes)",
+      "Bash(npx shadcn@latest add card input label progress select badge textarea dialog sonner --yes)",
+      "Bash(npx prisma:*)",
+      "Bash(cp /Users/harjot/Documents/trae_projects/faceless/.env.example /Users/harjot/Documents/trae_projects/faceless/.env.local)",
+      "Bash(/Users/harjot/Documents/trae_projects/faceless/.env.local:*)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npx prisma migrate dev --name init)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npx prisma db push)",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(auth\\)\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(app\\)\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(auth\\)/login/\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(auth\\)/register/\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(auth\\)/\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(app\\)/dashboard/\")",
+      "Bash(ls \"/Users/harjot/Documents/trae_projects/faceless/src/app/\\(app\\)/series/\")",
+      "Bash(/Users/harjot/Documents/trae_projects/faceless/vercel.json:*)",
+      "Bash(__NEW_LINE_cd5c17f4c2bdd5b7__ cat:*)",
+      "Bash(/Users/harjot/Documents/trae_projects/faceless/.env.example:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep -n \"Youtube\" /Users/harjot/Documents/trae_projects/faceless/src/app/\\\\\\(app\\\\\\)/videos/[videoId]/page.tsx)",
+      "Bash(grep -n \"Youtube\\\\|Image \" /Users/harjot/Documents/trae_projects/faceless/src/app/\\\\\\(app\\\\\\)/videos/[videoId]/page.tsx)",
+      "Bash(grep -n \"const update\" /Users/harjot/Documents/trae_projects/faceless/src/app/\\\\\\(app\\\\\\)/series/[seriesId]/settings/page.tsx)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npm run build)",
+      "Bash(pkill -f \"next dev\")"
+    ],
+    "additionalDirectories": [
+      "/Users/harjot/Documents/trae_projects/faceless/src/app/(app)/series/[seriesId]",
+      "/Users/harjot/Documents/trae_projects/faceless/src/app/(app)/videos/[videoId]",
+      "/Users/harjot/Documents/trae_projects/faceless/src/app/(app)/series/[seriesId]/settings"
     ]
   }
 }
