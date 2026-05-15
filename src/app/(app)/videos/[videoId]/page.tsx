@@ -48,6 +48,7 @@ export default function VideoDetailPage() {
   const [publishAllTotal, setPublishAllTotal] = useState(0);
   const [uploadCount, setUploadCount] = useState<number | "all">("all");
   const [uploadIntervalMinutes, setUploadIntervalMinutes] = useState(0);
+  const [privacyMode, setPrivacyMode] = useState<"unlisted" | "public" | "scheduled">("scheduled");
   const [uploadCountdown, setUploadCountdown] = useState(0);
   const uploadCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const uploadScheduleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -409,7 +410,7 @@ export default function VideoDetailPage() {
     setUploadCountdown(0);
   }
 
-  async function publishShortRequest(shortId: string, payload: { title: string; description: string }) {
+  async function publishShortRequest(shortId: string, payload: { title: string; description: string; privacy?: string }) {
     const res = await fetch(`/api/shorts/${shortId}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -426,7 +427,7 @@ export default function VideoDetailPage() {
 
   async function handlePublishShort(
     shortId: string,
-    payload: { title: string; description: string },
+    payload: { title: string; description: string; privacy?: string },
     options?: {
       notify?: boolean;
       refreshAfter?: boolean;
@@ -483,7 +484,7 @@ export default function VideoDetailPage() {
       return;
     }
 
-    await handlePublishShort(selectedShort.id, { title, description }, {
+    await handlePublishShort(selectedShort.id, { title, description, privacy: privacyMode }, {
       notify: true,
       refreshAfter: true,
       closeOnSuccess: true,
@@ -544,7 +545,7 @@ export default function VideoDetailPage() {
 
         const ok = await handlePublishShort(
           toUpload[i].id,
-          { title, description },
+          { title, description, privacy: privacyMode },
           { notify: false, refreshAfter: false, closeOnSuccess: false }
         );
         if (ok) successCount += 1;
@@ -1219,6 +1220,34 @@ export default function VideoDetailPage() {
                 disabled={Boolean(publishingShort) || publishingAllShorts}
               />
             </div>
+
+            {/* Privacy picker — shown for both single and all modes */}
+            {!publishingAllShorts && publishAllTotal === 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs">YouTube visibility</Label>
+                <div className="flex gap-2">
+                  {([
+                    { value: "scheduled", label: "Scheduled", sub: "Public in 10-min gaps" },
+                    { value: "unlisted", label: "Unlisted", sub: "Link only" },
+                    { value: "public",   label: "Public",    sub: "Visible immediately" },
+                  ] as const).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setPrivacyMode(opt.value)}
+                      className={`flex-1 flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg border text-xs font-medium transition-colors ${
+                        privacyMode === opt.value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/40 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      <span className="text-[10px] font-normal opacity-70">{opt.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Count + Interval pickers — only for "all" mode before upload starts */}
             {publishMode === "all" && !publishingAllShorts && publishAllTotal === 0 && (

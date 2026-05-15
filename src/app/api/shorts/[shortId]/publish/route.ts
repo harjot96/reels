@@ -46,13 +46,17 @@ export async function POST(
   }
 
   try {
-    const body = await req.json().catch(() => ({} as { title?: unknown; description?: unknown }));
+    const body = await req.json().catch(() => ({} as { title?: unknown; description?: unknown; privacy?: unknown }));
     const requestedTitle =
       typeof body.title === "string" ? body.title.trim() : "";
     const requestedDescription =
       typeof body.description === "string" ? body.description.trim() : "";
     const hasMetadataPayload =
       typeof body.title === "string" || typeof body.description === "string";
+    const privacy: "public" | "unlisted" | "scheduled" =
+      body.privacy === "public" ? "public"
+      : body.privacy === "unlisted" ? "unlisted"
+      : "scheduled";
 
     if (hasMetadataPayload && !requestedTitle) {
       return NextResponse.json(
@@ -94,19 +98,22 @@ export async function POST(
       );
     }
 
-    const publishAt = await getNextYoutubePublishSlot(userId);
+    const publishAt = privacy === "scheduled" ? await getNextYoutubePublishSlot(userId) : undefined;
+    const privacyOverride = privacy === "public" ? "public" : privacy === "unlisted" ? "unlisted" : undefined;
+
     const yt = await uploadShortToYoutube(
       userId,
       short.url,
       title,
       description,
       tags,
-      publishAt
+      publishAt,
+      privacyOverride
     );
 
     const updated = await prisma.short.update({
       where: { id: params.shortId },
-      data: { title, youtubeVideoId: yt.videoId, youtubeUrl: yt.url, youtubePublishAt: publishAt },
+      data: { title, youtubeVideoId: yt.videoId, youtubeUrl: yt.url, youtubePublishAt: publishAt ?? null },
     });
 
     return NextResponse.json({

@@ -152,7 +152,8 @@ export async function uploadVideoToYoutube(
   title: string,
   description: string,
   tags: string[],
-  publishAt?: Date
+  publishAt?: Date,
+  privacyOverride?: "public" | "unlisted"
 ): Promise<{ videoId: string; url: string }> {
   const auth = await getAuthClientForUser(userId);
   const youtube = google.youtube({ version: "v3", auth });
@@ -160,7 +161,7 @@ export async function uploadVideoToYoutube(
 
   const status: Record<string, string> = publishAt
     ? { privacyStatus: "private", publishAt: publishAt.toISOString() }
-    : { privacyStatus: "unlisted" };
+    : { privacyStatus: privacyOverride ?? "unlisted" };
 
   const response = await youtube.videos.insert({
     part: ["snippet", "status"],
@@ -237,7 +238,8 @@ export async function uploadShortToYoutube(
   title: string,
   description: string,
   tags: string[],
-  publishAt?: Date
+  publishAt?: Date,
+  privacyOverride?: "public" | "unlisted"
 ): Promise<{ videoId: string; url: string }> {
   const auth = await getAuthClientForUser(userId);
   const youtube = google.youtube({ version: "v3", auth });
@@ -247,7 +249,7 @@ export async function uploadShortToYoutube(
 
   const status: Record<string, string> = publishAt
     ? { privacyStatus: "private", publishAt: publishAt.toISOString() }
-    : { privacyStatus: "unlisted" };
+    : { privacyStatus: privacyOverride ?? "unlisted" };
 
   const response = await youtube.videos.insert({
     part: ["snippet", "status"],
